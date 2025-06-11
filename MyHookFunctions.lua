@@ -10,7 +10,6 @@ else
 end
 
 local MyHookFunctions = {}
-
 MyHookFunctions.__index = MyHookFunctions
 
 local function GetWebhookURLData(WebhookURL)
@@ -95,8 +94,14 @@ function MyHookFunctions:SendMessage(Message: string)
 		warn("MyHook Send Message Status: Something went wrong", response)
 	end
 end
-function MyHookFunctions.NewEmbed()
-	local self = setmetatable({}, MyHookFunctions)
+
+local EmbedFunctions = {}
+EmbedFunctions.__index = EmbedFunctions
+
+function MyHookFunctions.NewEmbed(HookData)
+	local self = setmetatable({}, EmbedFunctions)
+
+	self.WebhookURL = HookData.WebhookURL
 
 	self.EmbedTitle = "Unnamed Embed"
 	self.EmbedDescription = ""
@@ -108,17 +113,17 @@ function MyHookFunctions.NewEmbed()
 
 	return self
 end
-function MyHookFunctions:SetTitle(Text: string)
+function EmbedFunctions:SetTitle(Text: string)
 	if not Text then return warn("Embed Set: No title provided **REQUIRED**") end
 
 	self.EmbedTitle = Text
 end
-function MyHookFunctions:SetDescription(Text: string)
+function EmbedFunctions:SetDescription(Text: string)
 	if not Text then return warn("Embed Set: No description provided") end
 
 	self.EmbedDescription = Text
 end
-function MyHookFunctions:AddField(Title: string, Description, Inline: boolean)
+function EmbedFunctions:AddField(Title: string, Description, Inline: boolean)
 	if not Title then return warn("Embed Set Add Field: No title provided **REQUIRED**") end
 	if not Description then return warn("Embed Set Add Field: No description provided **REQUIRED**") end
 
@@ -130,6 +135,59 @@ function MyHookFunctions:AddField(Title: string, Description, Inline: boolean)
 
 	table.insert(self.Fields, NewField)
 end
-function MyHookFunctions:SendEmbed(Embed)
-	print(HTTPService(self))
+function EmbedFunctions:SetFooter(Text: string)
+	if not Text then return warn("Embed Set: No footer text provided") end
+
+	self.FooterText = Text
 end
+function EmbedFunctions:SetFooterImage(Text: string)
+	if not Text then return warn("Embed Set: No footer url provided") end
+
+	self.FooterImage = Text
+end
+
+function EmbedFunctions:SendEmbed()
+	if not self.EmbedTitle then return warn("Embed Message: No title set, set a title to create the embed.") end
+
+	local DatatoSend = HTTPService:JSONEncode({
+		embeds = {
+			{
+				title = self.EmbedTitle,
+				description = self.EmbedDescription,
+
+				fields = self.Fields,
+
+				footer = {
+					text = self.FooterText,
+					icon_url = self.FooterImage
+				}
+			}
+		}
+	})
+
+	local success, response = pcall(function()
+		return request({
+			Url = self.WebhookURL,
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json"
+			},
+
+			Body = DatatoSend
+		})
+	end)
+
+	if success then
+		if response and response.StatusCode and response.StatusCode == 204 then
+			print("MyHook Send Message Status: Successfully sent webhook message", response.StatusCode)
+		elseif response.StatusCode == 429 then
+			warn("MyHook Send Message Status: Slow down, your sending to many requests at once!", response.StatusCode)
+		else
+			warn("MyHook Send Message Status: Something went wrong! Status Code: "..response.StatusCode, response)
+		end
+	else
+		warn("MyHook Send Message Status: Something went wrong", response)
+	end
+end
+
+return MyHookFunctions
