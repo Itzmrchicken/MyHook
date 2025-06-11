@@ -96,10 +96,7 @@ function MyHookFunctions:SendMessage(Message: string)
 	end
 end
 function MyHookFunctions.NewEmbed()
-	local EmbedFunctions = {}
-	EmbedFunctions.__index = EmbedFunctions
-
-	local self = setmetatable({}, EmbedFunctions)
+	local self = setmetatable({}, {})
 
 	self.EmbedTitle = "Unnamed Embed"
 	self.EmbedDescription = ""
