@@ -31,13 +31,7 @@ local function GetWebhookData(WebhookURL)
 		})
 	end)
 
-	print(success, response)
-
 	if success then
-		-- response = HTTPService:JSONEncode(response)
-
-		-- print(response)
-
 		if response and response.StatusCode == 200 then
 			return response.Body
 		end
@@ -60,9 +54,6 @@ function MyHookFunctions.new(WebhookURL)
 	self.WebhookSecrets.WebhookID = ID or 0
 	self.WebhookSecrets.WebhookToken = Token or ""
 
-	-- print(HTTPService:JSONEncode(self))
-
-	-- Data = self
 	print("MyHook Status: Successfully created webhook data!")
 
 	return self
@@ -103,6 +94,47 @@ function MyHookFunctions:SendMessage(Message: string)
 	else
 		warn("MyHook Send Message Status: Something went wrong", response)
 	end
+end
+function MyHookFunctions.NewEmbed()
+	local EmbedFunctions = {}
+	EmbedFunctions.__index = EmbedFunctions
+
+	local self = setmetatable({}, EmbedFunctions)
+
+	self.EmbedTitle = "Unnamed Embed"
+	self.EmbedDescription = ""
+
+	self.Fields = {}
+
+	self.FooterText = ""
+	self.FooterImage = ""
+
+	return self
+end
+function MyHookFunctions:SetTitle(Text: string)
+	if not Text then return warn("Embed Set: No title provided **REQUIRED**") end
+
+	self.EmbedTitle = Text
+end
+function MyHookFunctions:SetDescription(Text: string)
+	if not Text then return warn("Embed Set: No description provided") end
+
+	self.EmbedDescription = Text
+end
+function MyHookFunctions:AddField(Title: string, Description, Inline: boolean)
+	if not Title then return warn("Embed Set Add Field: No title provided **REQUIRED**") end
+	if not Description then return warn("Embed Set Add Field: No description provided **REQUIRED**") end
+
+	local NewField = {
+		name = Title,
+		value = Description,
+		inline = Inline or false
+	}
+
+	table.insert(self.Fields, NewField)
+end
+function MyHookFunctions:SendEmbed(Embed)
+	print(HTTPService(self))
 end
 
 return MyHookFunctions
