@@ -39,7 +39,7 @@ local Embed1 = Hook1.NewEmbed(Hook1)
 Embed1:SetTitle("your-title")
 Embed1:SetDescription("your-description")
 Embed1:AddField("field-name", "field-description", inline -> true/false)
-Embed1:SetFooterText("your-footer-text")
+Embed1:SetFooter("your-footer-text")
 Embed1:SetFooterImage("your-footer-image-url")
 ```
 
