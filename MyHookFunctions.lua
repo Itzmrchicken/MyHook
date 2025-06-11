@@ -1,4 +1,3 @@
-
 local HTTPService = game:GetService("HttpService")
 
 -- local Data = {}
@@ -11,6 +10,7 @@ else
 end
 
 local MyHookFunctions = {}
+
 MyHookFunctions.__index = MyHookFunctions
 
 local function GetWebhookURLData(WebhookURL)
@@ -96,7 +96,7 @@ function MyHookFunctions:SendMessage(Message: string)
 	end
 end
 function MyHookFunctions.NewEmbed()
-	local self = setmetatable({}, {})
+	local self = setmetatable({}, MyHookFunctions)
 
 	self.EmbedTitle = "Unnamed Embed"
 	self.EmbedDescription = ""
@@ -133,5 +133,3 @@ end
 function MyHookFunctions:SendEmbed(Embed)
 	print(HTTPService(self))
 end
-
-return MyHookFunctions
